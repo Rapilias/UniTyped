@@ -1,11 +1,17 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <LangVersion>11</LangVersion>
-        <RootNamespace>UniTyped.Generator</RootNamespace>
+		<TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>11</LangVersion>
+    <RootNamespace>UniTyped.Generator</RootNamespace>
+
+		<IsRoslynComponent>true</IsRoslynComponent>
+		<AnalyzerLanguage>cs</AnalyzerLanguage>
+		<IncludeBuildOutput>false</IncludeBuildOutput>
+		<DevelopmentDependency>true</DevelopmentDependency>
+		<IncludeSymbols>false</IncludeSymbols>
+		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+		<SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -17,12 +23,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Irony" Version="1.2.0" />
-      <PackageReference Include="Irony.Interpreter" Version="1.2.0" />
-      <PackageReference Include="Microsoft.CodeAnalysis" Version="3.9.0" />
-      <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.9.0" />
+      <PackageReference Include="Irony" Version="1.5.1" />
+      <PackageReference Include="Irony.Interpreter" Version="1.5.1" />
+      <PackageReference Include="Microsoft.CodeAnalysis" Version="4.3.1" />
+      <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.1" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-      <PackageReference Include="YamlDotNet" Version="13.1.0" />
+      <PackageReference Include="YamlDotNet" Version="15.1.2" />
     </ItemGroup>
 
 </Project>
