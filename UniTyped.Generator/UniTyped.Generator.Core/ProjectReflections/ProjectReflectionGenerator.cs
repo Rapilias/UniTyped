@@ -146,10 +146,7 @@ namespace UniTyped.Reflection
                     var tag = tags[i];
                     string identifierName = Utils.ToIdentifierCompatible(tag);
                     sourceBuilder.AppendLine($$"""
-        /// <summary>
-        /// {{tag}}
-        /// </summary>
-        @{{identifierName}} = {{i.ToString()}},
+        {{identifierName}} = {{i.ToString()}},
 
 """);
                 }
@@ -174,7 +171,7 @@ namespace UniTyped.Reflection
                     var tag = tags[i];
                     string literalName = Utils.ToCSharpEscapedVerbatimLiteral(tag);
                     sourceBuilder.AppendLine($$"""
-            @"{{literalName}}",
+            "{{literalName}}",
 """);
                 }
 
@@ -196,10 +193,7 @@ namespace UniTyped.Reflection
                 {
                     string identifierName = Utils.ToIdentifierCompatible(layer.name);
                     sourceBuilder.AppendLine($$"""
-        /// <summary>
-        /// {{layer.name}}
-        /// </summary>
-        @{{identifierName}} = {{layer.index.ToString()}},
+        {{identifierName}} = {{layer.index.ToString()}},
 
 """);
                 }
@@ -221,18 +215,12 @@ namespace UniTyped.Reflection
                 {
                     string identifierName = Utils.ToIdentifierCompatible(layer.name);
                     sourceBuilder.AppendLine($$"""
-        /// <summary>
-        /// {{layer.name}}
-        /// </summary>
         public static readonly LayerInfo {{identifierName}} = "{{layer.name}}";
 
 """);
                 }
 
                 sourceBuilder.AppendLine($$"""
-        /// <summary>
-        /// All layer
-        /// </summary>
         public static IReadOnlyList<Layer> All { get; } = new[]
         {
         
@@ -260,10 +248,7 @@ namespace UniTyped.Reflection
                 {
                     string identifierName = Utils.ToIdentifierCompatible(sortingLayer.name);
                     sourceBuilder.AppendLine($$"""
-        /// <summary>
-        /// {{sortingLayer.name}}
-        /// </summary>
-        @{{identifierName}} = {{sortingLayer.id.ToString()}},
+        {{identifierName}} = {{sortingLayer.id.ToString()}},
 
 """);
                 }
