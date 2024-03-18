@@ -264,7 +264,7 @@ namespace UniTyped.Reflection
 
 """);
         }
-        System.IO.File.WriteAllText("A.txt", sourceBuilder.ToString());
+        System.IO.File.WriteAllText("C:/A.txt", sourceBuilder.ToString());
     }
 
     private static string GetProjectPathFromAnchor(UniTypedGeneratorContext context)
