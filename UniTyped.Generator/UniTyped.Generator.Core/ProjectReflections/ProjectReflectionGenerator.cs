@@ -8,8 +8,6 @@ public static class ProjectReflectionGenerator
     public static void GenerateViews(UniTypedGeneratorContext context, StringBuilder sourceBuilder)
     {
         sourceBuilder.AppendLine($$"""
-using System.Collections.Generic;
-
 namespace UniTyped.Reflection
 {
     public readonly struct LayerInfo
@@ -223,7 +221,7 @@ namespace UniTyped.Reflection
                 }
 
                 sourceBuilder.AppendLine($$"""
-        public static IReadOnlyList<Layers> All { get; } = new[]
+        public static Layers[] All { get; } = new[]
         {
         
 """);
