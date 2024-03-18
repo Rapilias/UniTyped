@@ -221,7 +221,7 @@ namespace UniTyped.Reflection
                 }
 
                 sourceBuilder.AppendLine($$"""
-        public static Layers[] All { get; } = new[]
+        public static Layers[] All = new[]
         {
         
 """);
@@ -231,7 +231,7 @@ namespace UniTyped.Reflection
                     sourceBuilder.AppendLine($"        {identifierName},\n");
                 }
                 sourceBuilder.AppendLine($$"""
-        }
+        };
     } // layer infos
 
 """);
@@ -264,6 +264,7 @@ namespace UniTyped.Reflection
 
 """);
         }
+        System.IO.File.WriteAllText("A.txt", sourceBuilder.ToString());
     }
 
     private static string GetProjectPathFromAnchor(UniTypedGeneratorContext context)
