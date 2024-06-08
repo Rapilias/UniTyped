@@ -297,7 +297,7 @@ class AnimatorControllerLayerPropertyProvider
         if (Char.IsLower(identifierName[0])) identifierName = "_" + identifierName;
 
         sourceBuilder.AppendLine($$"""
-        public readonly int @{{identifierName}}Index = {{layerIndex}};
+        public static readonly int @{{identifierName}}Index = {{layerIndex}};
         public float @{{identifierName}} 
         {
             get
