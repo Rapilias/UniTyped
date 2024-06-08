@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -14,6 +14,7 @@ public static class AnimatorViewGenerator
         sourceBuilder.AppendLine($"// AnimatorViewGenerator");
 
         var tempParams = new List<AnimatorControllerParameter>();
+        var tempLayers = new List<AnimatorControllerLayer>();
 
 
         foreach (var animatorViewType in context.Collector.AnimatorViews)
@@ -47,25 +48,9 @@ public static class AnimatorViewGenerator
 
                 if (animatorControllerNode is not YamlMappingNode animatorControllerNodeTyped) continue;
 
-                if (!animatorControllerNodeTyped.Children.TryGetValue("m_AnimatorParameters", out var parametersNode))
-                    continue;
+                ReadAnimatorParameters(animatorControllerNodeTyped, tempParams);
 
-                if (parametersNode is not YamlSequenceNode parametersNodeTyped) continue;
-
-                foreach (var param in parametersNodeTyped.OfType<YamlMappingNode>())
-                {
-                    if (!param.Children.TryGetValue("m_Name", out var nameNode)) continue;
-                    if (nameNode is not YamlScalarNode nameNodeTyped) continue;
-                    if (nameNodeTyped.Value == null) continue;
-
-                    if (!param.Children.TryGetValue("m_Type", out var typeNode)) continue;
-                    if (typeNode is not YamlScalarNode typeNodeTyped) continue;
-                    if (!int.TryParse(typeNodeTyped.Value, out int typeNum)) continue;
-
-                    var type = (AnimatorControllerParameterType)typeNum;
-
-                    tempParams.Add(new AnimatorControllerParameter(type, nameNodeTyped.Value));
-                }
+                ReadAnimatorLayers(animatorControllerNodeTyped, tempLayers);
             }
 
             var ns = symbol.ContainingNamespace;
@@ -92,6 +77,12 @@ namespace {{ns}}
                     
                 }
 
+                var layerProvider = new AnimatorControllerLayerPropertyProvider();
+                foreach (var layer in tempLayers)
+                {
+                    layerProvider.Generate(context, sourceBuilder, layer.Name, layer.Index);
+                }
+
                 sourceBuilder.AppendLine($$"""
     }
 """);
@@ -104,6 +95,48 @@ namespace {{ns}}
 """);
                 }
             }
+        }
+    }
+
+    private static void ReadAnimatorParameters(YamlMappingNode animatorControllerNodeTyped, List<AnimatorControllerParameter> outputParameters)
+    {
+        if (!animatorControllerNodeTyped.Children.TryGetValue("m_AnimatorParameters", out var parametersNode))
+            return;
+
+        if (parametersNode is not YamlSequenceNode parametersNodeTyped) return;
+
+        foreach (var param in parametersNodeTyped.OfType<YamlMappingNode>())
+        {
+            if (!param.Children.TryGetValue("m_Name", out var nameNode)) continue;
+            if (nameNode is not YamlScalarNode nameNodeTyped) continue;
+            if (nameNodeTyped.Value == null) continue;
+
+            if (!param.Children.TryGetValue("m_Type", out var typeNode)) continue;
+            if (typeNode is not YamlScalarNode typeNodeTyped) continue;
+            if (!int.TryParse(typeNodeTyped.Value, out int typeNum)) continue;
+
+            var type = (AnimatorControllerParameterType)typeNum;
+
+            outputParameters.Add(new AnimatorControllerParameter(type, nameNodeTyped.Value));
+        }
+    }
+    
+    private static void ReadAnimatorLayers(YamlMappingNode animatorControllerNodeTyped, List<AnimatorControllerLayer> outputLayers)
+    {
+        if (!animatorControllerNodeTyped.Children.TryGetValue("m_AnimatorLayers", out var parametersNode))
+            return;
+
+        if (parametersNode is not YamlSequenceNode parametersNodeTyped) return;
+
+        var index = 0;
+        foreach (var param in parametersNodeTyped.OfType<YamlMappingNode>())
+        {
+            if (!param.Children.TryGetValue("m_Name", out var nameNode)) continue;
+            if (nameNode is not YamlScalarNode nameNodeTyped) continue;
+            if (nameNodeTyped.Value == null) continue;
+
+            outputLayers.Add(new AnimatorControllerLayer(nameNodeTyped.Value, index));
+            index++;
         }
     }
 }
@@ -125,6 +158,18 @@ class AnimatorControllerParameter
     {
         Type = type;
         Name = name;
+    }
+}
+
+class AnimatorControllerLayer
+{
+    public string Name { get; }
+    public int Index { get; }
+
+    public AnimatorControllerLayer(string name, int index)
+    {
+        Name = name;
+        Index = index;
     }
 }
 
@@ -238,6 +283,31 @@ class AnimatorControllerParameterFloatPropertyProvider : AnimatorControllerParam
         public void Set{{identifierName}}(float value, float dampTime, float deltaTime)
         {
             {{target}}.SetFloat({{paramNameLiteral}}, value, dampTime, deltaTime);
+        }
+""");
+    }
+}
+
+class AnimatorControllerLayerPropertyProvider
+{
+    public void Generate(UniTypedGeneratorContext context, StringBuilder sourceBuilder, string layerName, int layerIndex)
+    {
+        string target = "Target";
+        string identifierName = Utils.ToIdentifierCompatible(layerName, false);
+        if (Char.IsLower(identifierName[0])) identifierName = "_" + identifierName;
+
+        sourceBuilder.AppendLine($$"""
+        public float @{{identifierName}} 
+        {
+            get
+            {
+                return {{target}}.GetLayerWeight({{layerIndex}});
+            }
+
+            set
+            {
+                {{target}}.SetLayerWeight({{layerIndex}}, value);
+            }
         }
 """);
     }
