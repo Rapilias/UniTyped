@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using YamlDotNet.RepresentationModel;
 
 namespace UniTyped.Generator.ProjectReflections;
@@ -10,6 +10,56 @@ public static class ProjectReflectionGenerator
         sourceBuilder.AppendLine($$"""
 namespace UniTyped.Reflection
 {
+    public readonly struct LayerInfo
+    {
+        public readonly string Name;
+        public readonly int Index;
+        public readonly int Mask;
+
+        public LayerInfo(string name)
+        {
+            this.Name = name;
+            this.Index = LayerMask.NameToLayer(name);
+            this.Mask = LayerMask.GetMask(name);
+        }
+
+        public override string ToString()
+        {
+            return JsonUtility.ToJson(this, true);
+        }
+
+        public static implicit operator int(LayerInfo layer)
+        {
+            return layer.Index;
+        }
+    }
+    
+    public readonly struct CompositeLayer
+    {
+        public readonly string Name;
+        public readonly int Mask;
+
+        public CompositeLayer(string name, params LayerInfo[] layers)
+        {
+            this.Name = name;
+            var mask = 0;
+            foreach(ref var layer in layers)
+            {
+                mask += layer.Mask;
+            }
+            this.Mask = mask;
+        }
+
+        public override string ToString()
+        {
+            return JsonUtility.ToJson(this, true);
+        }
+
+        public static implicit operator int(CompositeLayer layer)
+        {
+            return layer.Mask;
+        }
+    }
 """);
 
         List<string> tags = new();
@@ -96,10 +146,7 @@ namespace UniTyped.Reflection
                     var tag = tags[i];
                     string identifierName = Utils.ToIdentifierCompatible(tag);
                     sourceBuilder.AppendLine($$"""
-        /// <summary>
-        /// {{tag}}
-        /// </summary>
-        @{{identifierName}} = {{i.ToString()}},
+        {{identifierName}} = {{i.ToString()}},
 
 """);
                 }
@@ -124,7 +171,7 @@ namespace UniTyped.Reflection
                     var tag = tags[i];
                     string literalName = Utils.ToCSharpEscapedVerbatimLiteral(tag);
                     sourceBuilder.AppendLine($$"""
-            @"{{literalName}}",
+            "{{literalName}}",
 """);
                 }
 
@@ -146,16 +193,46 @@ namespace UniTyped.Reflection
                 {
                     string identifierName = Utils.ToIdentifierCompatible(layer.name);
                     sourceBuilder.AppendLine($$"""
-        /// <summary>
-        /// {{layer.name}}
-        /// </summary>
-        @{{identifierName}} = {{layer.index.ToString()}},
+        {{identifierName}} = {{layer.index.ToString()}},
 
 """);
                 }
 
                 sourceBuilder.AppendLine($$"""
     } // enum Layers
+
+""");
+            }
+            
+// layer infos
+            {
+                sourceBuilder.AppendLine($$"""
+    public static class LayerInfos
+    {
+""");
+
+                foreach (var layer in layers)
+                {
+                    string identifierName = Utils.ToIdentifierCompatible(layer.name);
+                    sourceBuilder.AppendLine($$"""
+        public static readonly LayerInfo {{identifierName}} = "{{layer.name}}";
+
+""");
+                }
+
+                sourceBuilder.AppendLine($$"""
+        public static Layers[] All = new[]
+        {
+        
+""");
+                foreach (var layer in layers)
+                {
+                    string identifierName = Utils.ToIdentifierCompatible(layer.name);
+                    sourceBuilder.AppendLine($"        {identifierName},\n");
+                }
+                sourceBuilder.AppendLine($$"""
+        };
+    } // layer infos
 
 """);
             }
@@ -171,10 +248,7 @@ namespace UniTyped.Reflection
                 {
                     string identifierName = Utils.ToIdentifierCompatible(sortingLayer.name);
                     sourceBuilder.AppendLine($$"""
-        /// <summary>
-        /// {{sortingLayer.name}}
-        /// </summary>
-        @{{identifierName}} = {{sortingLayer.id.ToString()}},
+        {{identifierName}} = {{sortingLayer.id.ToString()}},
 
 """);
                 }
@@ -190,6 +264,7 @@ namespace UniTyped.Reflection
 
 """);
         }
+        System.IO.File.WriteAllText("C:/A.txt", sourceBuilder.ToString());
     }
 
     private static string GetProjectPathFromAnchor(UniTypedGeneratorContext context)
