@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UniTyped;
 
 [UniTypedAnimatorView("New Animator Controller.controller")]
@@ -34,5 +34,9 @@ public class AnimatorViewExample : MonoBehaviour
         // Trigger
         view.TriggerA();
         view.ResetTriggerA();
+        
+        // Layer
+        view.Base_Layer = 1.0f;
+        view.SecondLayer = Mathf.Repeat(Time.time, 1.0f);
     }
 }
