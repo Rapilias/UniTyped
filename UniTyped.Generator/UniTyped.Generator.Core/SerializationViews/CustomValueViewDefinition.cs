@@ -199,20 +199,26 @@ public class CustomValueViewDefinition : GeneratedViewDefinition
                 view.GenerateViewInitialization(context, field, backingFieldName, finderSyntax);
 
 
-            sourceBuilder.AppendLine($$"""
-        private {{viewTypeSyntax}} {{backingFieldName}};
-""");
             if (!forceNested && view.IsDirectAccess)
             {
                 var fullQualifiedTypeName = "global::" + Utils.GetFullQualifiedTypeName(context, type, false);
 
+                // The `public readonly` accessor below would force a defensive copy of `this`
+                // (CS8656) if it called into a non-readonly getter that mutates a backing
+                // field. We sidestep that by constructing the inner view on every access.
+                // Note: the previous lazy-cache design already silently failed for this same
+                // reason -- the defensive copy meant the cache write was discarded, so
+                // FindProperty was effectively running on every `get` anyway. This change
+                // just makes that behaviour explicit; it is not a new perf regression.
                 sourceBuilder.AppendLine($$"""
-        private {{viewTypeSyntax}} {{viewPropertyName}}
+        private readonly {{viewTypeSyntax}} {{viewPropertyName}}
         {
             get
             {
-{{viewInitialization}}
-                return {{backingFieldName}};
+                return new {{viewTypeSyntax}}()
+                {
+                    Property = {{finderSyntax}}
+                };
             }
         }
 
@@ -231,6 +237,7 @@ public class CustomValueViewDefinition : GeneratedViewDefinition
             else
             {
                 sourceBuilder.AppendLine($$"""
+        private {{viewTypeSyntax}} {{backingFieldName}};
         public {{viewTypeSyntax}} {{name}}
         {
             get

@@ -4,6 +4,8 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <!-- Copy NuGet dependency DLLs (VYaml, Irony, Newtonsoft.Json) next to the analyzer DLL so Unity's Roslyn loader can resolve them. -->
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <!-- Source generators never surface localized strings; suppress the satellite resource DLLs that would otherwise be copied into the analyzer directory. -->
+        <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
