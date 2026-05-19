@@ -20,19 +20,27 @@ public class ShaderGraphParser : ShaderParser
         var graphData = sg.Objects.FirstOrDefault(o => o.Type == "UnityEditor.ShaderGraph.GraphData");
         if (graphData == null) return false;
 
-        foreach (var e in graphData.Document["m_Properties"])
+        var propertiesToken = graphData.Document["m_Properties"];
+        if (propertiesToken == null) return true;
+
+        foreach (var e in propertiesToken)
         {
-            string referencedId = (string)e["m_Id"];
+            var idToken = e["m_Id"];
+            if (idToken == null) continue;
+            string? referencedId = (string?)idToken;
+            if (referencedId == null) continue;
+
             var referencedObj = sg.Objects.FirstOrDefault(o => o.Id == referencedId);
             if (referencedObj == null) continue;
 
             var root = referencedObj.Document;
 
             // is exposed
-            if (!(bool)root["m_GeneratePropertyBlock"]) continue;
+            var exposedToken = root["m_GeneratePropertyBlock"];
+            if (exposedToken == null || !(bool)exposedToken) continue;
 
-            var defaultReferenceName = (string)root["m_DefaultReferenceName"];
-            var overrideReferenceName = (string)root["m_OverrideReferenceName"];
+            var defaultReferenceName = (string?)root["m_DefaultReferenceName"];
+            var overrideReferenceName = (string?)root["m_OverrideReferenceName"];
 
             string? referenceName = string.IsNullOrEmpty(overrideReferenceName)
                 ? defaultReferenceName
@@ -56,7 +64,7 @@ public class ShaderGraphParser : ShaderParser
 
             if (provider == null) continue;
             
-            result.Add(new ShaderProperty(provider, referenceName));
+            result.Add(new ShaderProperty(provider, referenceName!));
             
         }
 
@@ -75,25 +83,28 @@ public class ShaderGraph
     {
         /*
          * *.shadergraph files are consist of multiple json objects like:
-         * 
+         *
          *  {
          *      "m_Type": "UnityEditor.ShaderGraph.GraphData",
          *      "m_ObjectId": "9e66f3df1fdb431a843a218972a2bfba",
          *      ...
          *  }
-         *  
+         *
          *  {
          *      "m_SGVersion": 0,
          *      "m_Type": "UnityEditor.ShaderGraph.CategoryData",
          *      "m_ObjectId": "14e728f6032146a1a59d01e2315f82d8",
          *      ...
          *  }
-         *  
+         *
          *  ...
-         *  
+         *
          * We need to split them into individual json objects before parsing.
-         * 
+         *
          */
+
+        // normalize CRLF / CR to LF so the "}\n\n{" splitter below works regardless of source line endings.
+        if (text.IndexOf('\r') >= 0) text = text.Replace("\r\n", "\n").Replace('\r', '\n');
 
         var span = text.AsMemory();
         int cursor = 0;
@@ -135,9 +146,9 @@ public class ShaderGraph
         {
             this.Document = doc;
 
-            Version = (int)doc["m_SGVersion"];
-            Type = (string)doc["m_Type"];
-            Id = (string)doc["m_ObjectId"];
+            Version = (int?)doc["m_SGVersion"] ?? 0;
+            Type = (string?)doc["m_Type"] ?? "";
+            Id = (string?)doc["m_ObjectId"] ?? "";
         }
     }
 }

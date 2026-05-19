@@ -256,13 +256,13 @@ public class CustomValueViewDefinition : GeneratedViewDefinition
         var templateType = TemplateTypeSymbol;
 
         var templateTypePath = Utils.GetTypePath(templateType);
-        
+
         var root = templateTypePath;
         while (root.Parent != null)
         {
             root = root.Parent;
         }
-        
+
         root.Parent = new TypePath("UniTyped.Generated");
         templateTypePath.Name += "View";
 
