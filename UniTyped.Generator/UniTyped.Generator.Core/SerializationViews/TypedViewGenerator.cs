@@ -60,13 +60,14 @@ public static class TypedViewGenerator
             {
                 if (!node.IsGlobalNamesapce)
                 {
-                    if (node.Path.TypeParams.Length > 0)
+                    var path = node.Path!;
+                    if (path.TypeParams.Length > 0)
                     {
                         sourceBuilder.Append($$"""
-public static class {{node.Path.Name}}<{{string.Join(", ", node.Path.TypeParams.Select(p => p.Name))}}>
+public static class {{path.Name}}<{{string.Join(", ", path.TypeParams.Select(p => p.Name))}}>
 """);
 
-                        foreach (var p in node.Path.TypeParams)
+                        foreach (var p in path.TypeParams)
                         {
                             sourceBuilder.Append(
                                 $" where {p.Name} : struct, global::UniTyped.Editor.ISerializedPropertyView");
@@ -81,7 +82,7 @@ public static class {{node.Path.Name}}<{{string.Join(", ", node.Path.TypeParams.
                     else
                     {
                         sourceBuilder.AppendLine($$"""
-namespace {{node.Path.Name}}
+namespace {{path.Name}}
 {
 """);
                     }
@@ -95,25 +96,27 @@ namespace {{node.Path.Name}}
 
                 if (!node.IsGlobalNamesapce)
                 {
-                    if (node.Path.TypeParams.Length > 0)
+                    var path = node.Path!;
+                    if (path.TypeParams.Length > 0)
                     {
                         sourceBuilder.AppendLine($$"""
-} // class {{node.Path.Name}}
+} // class {{path.Name}}
 """);
                     }
                     else
                     {
                         sourceBuilder.AppendLine($$"""
-} // namespace {{node.Path.Name}}
+} // namespace {{path.Name}}
 """);
                     }
                 }
             }
             else
             {
-                node.View.GenerateViewTypeOpen(context, sourceBuilder);
+                var view = node.View!;
+                view.GenerateViewTypeOpen(context, sourceBuilder);
 
-                node.View.GenerateViewTypeContent(context, sourceBuilder);
+                view.GenerateViewTypeContent(context, sourceBuilder);
 
                 foreach (var child in node.Children)
                 {
@@ -121,7 +124,7 @@ namespace {{node.Path.Name}}
                     sourceBuilder.AppendLine();
                 }
 
-                node.View.GenerateViewTypeClose(context, sourceBuilder);
+                view.GenerateViewTypeClose(context, sourceBuilder);
             }
         }
 

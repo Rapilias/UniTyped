@@ -9,25 +9,27 @@ using UniTyped.Editor;
 [UniTyped]
 public class Example : MonoBehaviour
 {
+#pragma warning disable 0414 // assigned but never used: this is a serialization-only sample class
+
     // primitive C# types
 
-    [SerializeField] private byte someByte = default;
-    [SerializeField] private sbyte someSbyte = default;
-    [SerializeField] private short someShort = default;
-    [SerializeField] private ushort someUshort = default;
-    [SerializeField] private int someInt = default;
-    [SerializeField] private uint someUint = default;
-    [SerializeField] private long someLong = default;
-    [SerializeField] private ulong someUlong = default;
-    [SerializeField] private float someFloat = default;
-    [SerializeField] private double someDouble = default;
-    [SerializeField] private bool someBool = default;
-    [SerializeField] private string someString = default;
-    [SerializeField] private char someChar = default;
+    [SerializeField] private byte someByte = 0;
+    [SerializeField] private sbyte someSbyte = 0;
+    [SerializeField] private short someShort = 0;
+    [SerializeField] private ushort someUshort = 0;
+    [SerializeField] private int someInt = 0;
+    [SerializeField] private uint someUint = 0;
+    [SerializeField] private long someLong = 0;
+    [SerializeField] private ulong someUlong = 0;
+    [SerializeField] private float someFloat = 0;
+    [SerializeField] private double someDouble = 0;
+    [SerializeField] private bool someBool = false;
+    [SerializeField] private string someString = string.Empty;
+    [SerializeField] private char someChar = '\0';
 
     // built-in unity types
 
-    [SerializeField] private AnimationCurve someAnimationCurve = default;
+    [SerializeField] private AnimationCurve someAnimationCurve = null;
     [SerializeField] private BoundsInt someBoundsInt = default;
     [SerializeField] private Bounds someBounds = default;
     [SerializeField] private Color someColor = default;
@@ -93,6 +95,8 @@ public class Example : MonoBehaviour
     {
         [SerializeField] private fixed char fixedBuffer[30];
     }
+
+#pragma warning restore 0414
 }
 
 
@@ -101,7 +105,7 @@ public class Example : MonoBehaviour
 [UnityEditor.CustomEditor(typeof(Example))]
 public class ExampleEditor : UnityEditor.Editor
 {
-    
+
     public override void OnInspectorGUI()
     {
         var view = new UniTyped.Generated.ExampleView()
@@ -115,7 +119,7 @@ public class ExampleEditor : UnityEditor.Editor
         for (int i = 0; i < view.someArray.Length; i++)
         {
             Debug.Log(view.someArray[i].Value);
-            
+
             // set value
             view.someArray[i].Set(100);
             // ... or
