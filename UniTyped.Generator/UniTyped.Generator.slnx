@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="UniTyped.Generator.Core/UniTyped.Generator.Core.csproj" />
+  <Project Path="UniTyped.Generator.Standalone/UniTyped.Generator.Standalone.csproj" />
+  <Project Path="UniTyped.Generator.Unity/UniTyped.Generator.Unity.csproj" />
+</Solution>

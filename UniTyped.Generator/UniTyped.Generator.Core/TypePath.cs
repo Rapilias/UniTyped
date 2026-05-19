@@ -115,7 +115,7 @@ public class TypePath : IEquatable<TypePath>
 
     private sealed class ParentNameEqualityComparer : IEqualityComparer<TypePath>
     {
-        public bool Equals(TypePath x, TypePath y)
+        public bool Equals(TypePath? x, TypePath? y)
         {
             if (ReferenceEquals(x, y)) return true;
             if (ReferenceEquals(x, null)) return false;

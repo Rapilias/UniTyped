@@ -48,12 +48,8 @@ public class UniTypedGeneratorContext
 
         var custom = GetOrAddObjectView(context, type, viewUsage);
         if (custom.Match(this, type, viewUsage)) return custom;
-            
-        else throw new InvalidOperationException($"Created view doesn't match target type: {type.MetadataName}, {custom}");
-        
-        //throw new InvalidOperationException("New view is null");
 
-        return unsupportedView;
+        throw new InvalidOperationException($"Created view doesn't match target type: {type.MetadataName}, {custom}");
     }
 
     private TypedViewDefinition GetOrAddObjectView(UniTypedGeneratorContext context, ITypeSymbol type,
@@ -84,10 +80,10 @@ public class UniTypedGeneratorContext
         //Array
         if (Utils.IsArrayOrList(context, type, out var elementType))
         {
+            if (elementType == null) throw new InvalidOperationException("Array element type could not be resolved");
             if (viewUsage is ViewUsage.SerializeField && Utils.IsSerializableAsSerializeField(context, elementType)) return new SerializeFieldArrayViewDefinition(elementType);
             if(viewUsage is ViewUsage.SerializeReferenceField) return new ManagedReferenceArrayViewDefinition(elementType);
             throw new InvalidOperationException("Unserializable");
-            //return null;
         }
         
         if (viewUsage == ViewUsage.SerializeReferenceField)

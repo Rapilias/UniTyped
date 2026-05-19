@@ -1,0 +1,23 @@
+<Project>
+
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Roslyn analyzer host. Pinned to 4.3.0 to keep compatibility with the Unity Roslyn loader. -->
+    <PackageVersion Include="Microsoft.CodeAnalysis" Version="4.3.0" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.0" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.3.0" />
+
+    <!-- Other dependencies: latest stable. -->
+    <PackageVersion Include="Irony" Version="1.5.3" />
+    <PackageVersion Include="Irony.Interpreter" Version="1.5.3" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageVersion Include="VYaml" Version="1.3.0" />
+    <PackageVersion Include="Microsoft.Build.Locator" Version="1.11.2" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="10.0.8" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.CommandLine" Version="10.0.8" />
+  </ItemGroup>
+
+</Project>

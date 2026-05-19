@@ -71,7 +71,7 @@ namespace UniTyped.Generator.Manual.Editor
 
             if (GUILayout.Button(isBusy ? "Generating..." : "Generate"))
             {
-                GenerateAsync();
+                _ = GenerateAsync();
             }
             EditorGUI.EndDisabledGroup();
         }
@@ -136,7 +136,7 @@ namespace UniTyped.Generator.Manual.Editor
     public class GeneratorRunner : IDisposable
     {
         private static string generatorPath =
-            "Packages/com.ruccho.unityped.manualgenerator/Editor/Executable~/netcoreapp3.1/UniTyped.Generator.Standalone.dll";
+            "Packages/com.ruccho.unityped.manualgenerator/Editor/Executable~/net10.0/UniTyped.Generator.Standalone.dll";
 
         private readonly Process process = default;
 

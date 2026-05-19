@@ -143,7 +143,7 @@ public class ShaderlabGrammar : Grammar
             "BindChannels",
         };
 
-        var commands = commandNames.Aggregate((BnfExpression)null, (agg, term) =>
+        var commands = commandNames.Aggregate((BnfExpression?)null, (agg, term) =>
         {
             var command = new NonTerminal("Command")
             {
@@ -278,18 +278,18 @@ public class PropertiesNode : AstNode
 
 public class PropertyNode : AstNode
 {
-    public string Name { get; private set; }
-    public string DisplayName { get; private set; }
-    public AstNode Type { get; private set; }
-    public AstNode DefaultValue { get; private set; }
+    public string Name { get; private set; } = "";
+    public string DisplayName { get; private set; } = "";
+    public AstNode Type { get; private set; } = default!;
+    public AstNode DefaultValue { get; private set; } = default!;
 
     public override void Init(AstContext context, ParseTreeNode treeNode)
     {
         base.Init(context, treeNode);
 
         var nodes = treeNode.GetMappedChildNodes();
-        Name = (AddChild("Name", nodes[1]) as LiteralValueNode).Value as string;
-        DisplayName = (AddChild("DisplayName", nodes[3]) as LiteralValueNode).Value as string;
+        Name = ((AddChild("Name", nodes[1]) as LiteralValueNode)?.Value as string) ?? "";
+        DisplayName = ((AddChild("DisplayName", nodes[3]) as LiteralValueNode)?.Value as string) ?? "";
         Type = AddChild("Type", nodes[5].ChildNodes[0]);
         DefaultValue = AddChild("DefaultValue", nodes[8]);
     }
@@ -297,7 +297,7 @@ public class PropertyNode : AstNode
 
 public class PropertyTypeSimpleNode : AstNode
 {
-    public string Type { get; private set; }
+    public string Type { get; private set; } = "";
 
     public override void Init(AstContext context, ParseTreeNode treeNode)
     {
@@ -315,8 +315,8 @@ public class PropertyTypeSimpleNode : AstNode
 
 public class PropertyTypeRangeNode : AstNode
 {
-    public AstNode StartNode { get; private set; }
-    public AstNode EndNode { get; private set; }
+    public AstNode StartNode { get; private set; } = default!;
+    public AstNode EndNode { get; private set; } = default!;
 
     public override void Init(AstContext context, ParseTreeNode treeNode)
     {

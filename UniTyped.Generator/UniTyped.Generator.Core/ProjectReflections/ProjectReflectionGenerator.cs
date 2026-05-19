@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using YamlDotNet.RepresentationModel;
+using VYaml.Serialization;
 
 namespace UniTyped.Generator.ProjectReflections;
 
@@ -24,35 +24,32 @@ namespace UniTyped.Reflection
             // tags and layers
             var tagManagerPath = Path.Combine(projectSettingsPath, "TagManager.asset");
 
-            using var tagManagerContent = new StreamReader(tagManagerPath, Encoding.UTF8);
-            var tagManagerYaml = new YamlStream();
-            tagManagerYaml.Load(tagManagerContent);
+            var tagManagerBytes = File.ReadAllBytes(tagManagerPath);
+            var docs = YamlSerializer.DeserializeMultipleDocuments<TagManagerYamlDocument>(tagManagerBytes);
 
-            foreach (var doc in tagManagerYaml.Documents)
+            foreach (var doc in docs)
             {
-                var root = (YamlMappingNode)doc.RootNode;
+                var node = doc?.TagManager;
+                if (node == null) continue;
 
-                if (!root.Children.TryGetValue("TagManager", out var tagManagerNode)) continue;
-                if (tagManagerNode is not YamlMappingNode tagManagerNodeTyped) continue;
-
-                if (tagManagerNodeTyped.Children.TryGetValue("tags", out var tagsNode) &&
-                    tagsNode is YamlSequenceNode tagsNodeTyped)
+                if (node.tags is { } docTags)
                 {
-                    tags.AddRange(tagsNodeTyped.OfType<YamlScalarNode>().Select(t => t.Value).Where(t => t != null));
+                    foreach (var t in docTags)
+                    {
+                        if (t == null) continue;
+                        tags.Add(t);
+                    }
                 }
 
-                if (tagManagerNodeTyped.Children.TryGetValue("layers", out var layersNode) &&
-                    layersNode is YamlSequenceNode layersNodeTyped)
+                if (node.layers is { } docLayers)
                 {
                     int i = 0;
-                    foreach (var layerNode in layersNodeTyped)
+                    foreach (var name in docLayers)
                     {
                         try
                         {
-                            if (layerNode is not YamlScalarNode layerNodeTyped) continue;
-                            if (string.IsNullOrEmpty(layerNodeTyped.Value)) continue;
-
-                            layers.Add((i, layerNodeTyped.Value));
+                            if (string.IsNullOrEmpty(name)) continue;
+                            layers.Add((i, name!));
                         }
                         finally
                         {
@@ -60,24 +57,13 @@ namespace UniTyped.Reflection
                         }
                     }
                 }
-                
-                if (tagManagerNodeTyped.Children.TryGetValue("m_SortingLayers", out var sortingLayersNode) &&
-                    sortingLayersNode is YamlSequenceNode sortingLayersNodeTyped)
+
+                if (node.m_SortingLayers is { } docSortingLayers)
                 {
-                    foreach (var sortingLayerNode in sortingLayersNodeTyped)
+                    foreach (var entry in docSortingLayers)
                     {
-                        if (sortingLayerNode is not YamlMappingNode sortingLayerNodeTyped) continue;
-
-                        if (!sortingLayerNodeTyped.Children.TryGetValue("name", out var nameNode) ||
-                            nameNode is not YamlScalarNode nameNodeTyped) continue;
-                        if (!sortingLayerNodeTyped.Children.TryGetValue("uniqueID", out var idNode) ||
-                            idNode is not YamlScalarNode idNodeTyped) continue;
-
-                        if (string.IsNullOrEmpty(nameNodeTyped.Value)) continue;
-                        if (string.IsNullOrEmpty(idNodeTyped.Value)) continue;
-                        if (!uint.TryParse(idNodeTyped.Value, out uint id)) continue;
-
-                        sortingLayers.Add((unchecked((int)id), nameNodeTyped.Value));
+                        if (string.IsNullOrEmpty(entry.name)) continue;
+                        sortingLayers.Add((unchecked((int)entry.uniqueID), entry.name!));
                     }
                 }
             }

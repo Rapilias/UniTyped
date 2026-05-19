@@ -6,8 +6,8 @@ public class SerializeFieldArrayViewDefinition : RuntimeViewDefinition
 {
     public override bool IsDirectAccess => false;
 
-    private ITypeSymbol elementType = default;
-    private TypedViewDefinition resolvedElementView = default;
+    private ITypeSymbol elementType;
+    private TypedViewDefinition resolvedElementView = default!;
 
     public SerializeFieldArrayViewDefinition(ITypeSymbol elementType)
     {
@@ -39,8 +39,8 @@ public class ManagedReferenceArrayViewDefinition : RuntimeViewDefinition
 {
     public override bool IsDirectAccess => false;
 
-    private ITypeSymbol elementType = default;
-    private TypedViewDefinition resolvedElementView = default;
+    private ITypeSymbol elementType;
+    private TypedViewDefinition resolvedElementView = default!;
 
     public ManagedReferenceArrayViewDefinition(ITypeSymbol elementType)
     {

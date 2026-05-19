@@ -2,8 +2,7 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.CodeAnalysis;
-using YamlDotNet.RepresentationModel;
-using YamlDotNet.Serialization;
+using VYaml.Serialization;
 
 namespace UniTyped.Generator.AnimatorViews;
 
@@ -35,22 +34,19 @@ public static class AnimatorViewGenerator
             var animatorControllerFullPath =
                 $"{Path.GetDirectoryName(animatorViewType.SyntaxTree.FilePath)}/{animatorControllerPath}";
 
-            using var contentReader = new StreamReader(animatorControllerFullPath, Encoding.UTF8);
+            tempParams.Clear();
+            tempLayers.Clear();
 
-            var yaml = new YamlStream();
-            yaml.Load(contentReader);
+            var bytes = File.ReadAllBytes(animatorControllerFullPath);
+            var docs = YamlSerializer.DeserializeMultipleDocuments<AnimatorControllerYamlDocument>(bytes);
 
-            foreach (var doc in yaml.Documents)
+            foreach (var doc in docs)
             {
-                var root = (YamlMappingNode)doc.RootNode;
+                var node = doc?.AnimatorController;
+                if (node == null) continue;
 
-                if (!root.Children.TryGetValue("AnimatorController", out var animatorControllerNode)) continue;
-
-                if (animatorControllerNode is not YamlMappingNode animatorControllerNodeTyped) continue;
-
-                ReadAnimatorParameters(animatorControllerNodeTyped, tempParams);
-
-                ReadAnimatorLayers(animatorControllerNodeTyped, tempLayers);
+                ReadAnimatorParameters(node, tempParams);
+                ReadAnimatorLayers(node, tempLayers);
             }
 
             var ns = symbol.ContainingNamespace;
@@ -98,44 +94,27 @@ namespace {{ns}}
         }
     }
 
-    private static void ReadAnimatorParameters(YamlMappingNode animatorControllerNodeTyped, List<AnimatorControllerParameter> outputParameters)
+    private static void ReadAnimatorParameters(AnimatorControllerYamlNode controllerNode, List<AnimatorControllerParameter> outputParameters)
     {
-        if (!animatorControllerNodeTyped.Children.TryGetValue("m_AnimatorParameters", out var parametersNode))
-            return;
+        if (controllerNode.m_AnimatorParameters is not { } parameters) return;
 
-        if (parametersNode is not YamlSequenceNode parametersNodeTyped) return;
-
-        foreach (var param in parametersNodeTyped.OfType<YamlMappingNode>())
+        foreach (var param in parameters)
         {
-            if (!param.Children.TryGetValue("m_Name", out var nameNode)) continue;
-            if (nameNode is not YamlScalarNode nameNodeTyped) continue;
-            if (nameNodeTyped.Value == null) continue;
-
-            if (!param.Children.TryGetValue("m_Type", out var typeNode)) continue;
-            if (typeNode is not YamlScalarNode typeNodeTyped) continue;
-            if (!int.TryParse(typeNodeTyped.Value, out int typeNum)) continue;
-
-            var type = (AnimatorControllerParameterType)typeNum;
-
-            outputParameters.Add(new AnimatorControllerParameter(type, nameNodeTyped.Value));
+            if (param.m_Name is null) continue;
+            var type = (AnimatorControllerParameterType)param.m_Type;
+            outputParameters.Add(new AnimatorControllerParameter(type, param.m_Name));
         }
     }
-    
-    private static void ReadAnimatorLayers(YamlMappingNode animatorControllerNodeTyped, List<AnimatorControllerLayer> outputLayers)
-    {
-        if (!animatorControllerNodeTyped.Children.TryGetValue("m_AnimatorLayers", out var parametersNode))
-            return;
 
-        if (parametersNode is not YamlSequenceNode parametersNodeTyped) return;
+    private static void ReadAnimatorLayers(AnimatorControllerYamlNode controllerNode, List<AnimatorControllerLayer> outputLayers)
+    {
+        if (controllerNode.m_AnimatorLayers is not { } layers) return;
 
         var index = 0;
-        foreach (var param in parametersNodeTyped.OfType<YamlMappingNode>())
+        foreach (var layer in layers)
         {
-            if (!param.Children.TryGetValue("m_Name", out var nameNode)) continue;
-            if (nameNode is not YamlScalarNode nameNodeTyped) continue;
-            if (nameNodeTyped.Value == null) continue;
-
-            outputLayers.Add(new AnimatorControllerLayer(nameNodeTyped.Value, index));
+            if (layer.m_Name is null) { index++; continue; }
+            outputLayers.Add(new AnimatorControllerLayer(layer.m_Name, index));
             index++;
         }
     }

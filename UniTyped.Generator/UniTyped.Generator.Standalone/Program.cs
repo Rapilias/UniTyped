@@ -21,6 +21,18 @@ try
     var outputPath = config["output"];
     var projectPath = config["project"];
 
+    if (string.IsNullOrEmpty(projectPath))
+    {
+        Console.Error.WriteLine("Missing required option: --project");
+        return -1;
+    }
+
+    if (string.IsNullOrEmpty(outputPath))
+    {
+        Console.Error.WriteLine("Missing required option: --output");
+        return -1;
+    }
+
 
     using var workspace = MSBuildWorkspace.Create();
 
@@ -48,8 +60,7 @@ try
         return 0;
     }
 
-    if (result != null) File.WriteAllText(outputPath, result);
-    else Console.WriteLine("There is no content to emit.");
+    File.WriteAllText(outputPath, result);
 
     return 0;
 }

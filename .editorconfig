@@ -1,0 +1,64 @@
+root = true
+# EditorConfig is awesome: https://EditorConfig.org
+# このファイルよりも上位のEditorConfigを見ない
+
+# Unity
+[*.{uss,css}]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+tab_width = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# data and scripts
+[*.{sh,xml,pubxml,yaml,yml,json,props}]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.md]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = false
+
+# git-keep
+[*.gitkeep]
+end_of_line = lf
+insert_final_newline = false
+trim_trailing_whitespace = true
+
+# shell
+[*.sh]
+trim_trailing_whitespace = false
+
+# special files
+[*.{editorconfig,gitignore,csproj,sln}]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# .NET local tool
+[dotnet-tools.json]
+end_of_line = crlf
+trim_trailing_whitespace =
+insert_final_newline =
+
+# C#
+[*.{cs,csx}]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
