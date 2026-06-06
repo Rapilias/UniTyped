@@ -118,6 +118,29 @@ namespace UniTyped.Reflection
         };
     } // class TagData
 
+    public static class TagUtility
+    {
+        private static global::System.Collections.ObjectModel.ReadOnlyCollection<string> tagNames;
+        public static global::System.Collections.ObjectModel.ReadOnlyCollection<string> TagNames => tagNames ??= global::System.Array.AsReadOnly(TagData.tagNames);
+
+        public static string GetTagName(Tags tag)
+        {
+            return TagData.tagNames[(int)tag];
+        }
+
+        public static string ToTagName(this Tags tag)
+        {
+            return TagData.tagNames[(int)tag];
+        }
+
+        public static bool TryGetTagValue(string tagName, out Tags result)
+        {
+            int index = global::System.Array.IndexOf(TagData.tagNames, tagName);
+            result = (Tags)index;
+            return index >= 0;
+        }
+    } // class TagUtility
+
 """);
             }
 
